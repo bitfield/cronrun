@@ -40,11 +40,11 @@ func TestSplitCrontab(t *testing.T) {
 		if err == nil && tc.errExpected {
 			t.Errorf("SplitCrontab(%q) did not error as expected", tc.input)
 		}
-		if got.cronexpr != tc.cronexpr {
-			t.Errorf("SplitCrontab(%q) => cronexpr: %q, want %q", tc.input, got.cronexpr, tc.cronexpr)
+		if got.Cronexpr != tc.cronexpr {
+			t.Errorf("SplitCrontab(%q) => cronexpr: %q, want %q", tc.input, got.Cronexpr, tc.cronexpr)
 		}
-		if got.command != tc.command {
-			t.Errorf("SplitCrontab(%q) => command: %q, want %q", tc.input, got.command, tc.command)
+		if got.Command != tc.command {
+			t.Errorf("SplitCrontab(%q) => command: %q, want %q", tc.input, got.Command, tc.command)
 		}
 	}
 }

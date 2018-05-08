@@ -10,11 +10,11 @@ import (
 )
 
 // A CronSpec represents the data parsed from a crontab line.
-// `cronexpr` is the cron expression string (e.g. `* * * * *`).
-// `command` is the remainder of the line, which cron would run as the scheduled command.
+// `Cronexpr` is the cron expression string (e.g. `* * * * *`).
+// `Command` is the remainder of the line, which cron would run as the scheduled command.
 type CronSpec struct {
-	cronexpr string
-	command  string
+	Cronexpr string
+	Command  string
 }
 
 // Runnable returns true if the cron expression `crontime` represents the same time as the time `now`, to the minute, and false otherwise. For example, Runnable always returns true for the cron expression `* * * *`, since that means 'run every minute'. The expression '5 * * * *' returns true if the current minute of `now` is 5. And so on.
@@ -32,7 +32,7 @@ func Runnable(crontime string, now time.Time) (bool, error) {
 	return thisMinute == nextRunMinute, nil
 }
 
-// SplitCrontab parses a crontab line (like `* * * * * /usr/bin/foo`) and returns a CronSpec with the `cronexpr` and `command` fields set to the parsed cron expression and the command, respectively.
+// SplitCrontab parses a crontab line (like `* * * * * /usr/bin/foo`) and returns a CronSpec with the `Cronexpr` and `Command` fields set to the parsed cron expression and the command, respectively.
 func SplitCrontab(crontab string) (CronSpec, error) {
 	fields := strings.Fields(crontab)
 	if len(fields) < 6 {
