@@ -6,45 +6,45 @@ import (
 	"time"
 )
 
-func TestSplitCrontab(t *testing.T) {
+func TestNewJob(t *testing.T) {
 	cases := []struct {
 		input       string
-		cronexpr    string
+		due         string
 		command     string
 		errExpected bool
 	}{
 		{
 			input:       "* * * * * foo",
-			cronexpr:    "* * * * *",
+			due:         "* * * * *",
 			command:     "foo",
 			errExpected: false,
 		},
 		{
 			input:       " * * * * 1 foo bar baz",
-			cronexpr:    "* * * * 1",
+			due:         "* * * * 1",
 			command:     "foo bar baz",
 			errExpected: false,
 		},
 		{
 			input:       "* * * * *",
-			cronexpr:    "",
+			due:         "",
 			command:     "",
 			errExpected: true,
 		},
 	}
 	for _, tc := range cases {
-		got, err := SplitCrontab(tc.input)
+		got, err := NewJob(tc.input)
 		if err != nil && !tc.errExpected {
-			t.Errorf("SplitCrontab(%q) errored unexpectedly: %v", tc.input, err)
+			t.Errorf("NewJob(%q) errored unexpectedly: %v", tc.input, err)
 		}
 		if err == nil && tc.errExpected {
-			t.Errorf("SplitCrontab(%q) did not error as expected", tc.input)
+			t.Errorf("NewJob(%q) did not error as expected", tc.input)
 		}
-		if got.Cronexpr != tc.cronexpr {
-			t.Errorf("SplitCrontab(%q) => cronexpr: %q, want %q", tc.input, got.Cronexpr, tc.cronexpr)
+		if got.Due != tc.due {
+			t.Errorf("NewJob(%q) => due: %q, want %q", tc.input, got.Due, tc.due)
 		}
 		if got.Command != tc.command {
-			t.Errorf("SplitCrontab(%q) => command: %q, want %q", tc.input, got.Command, tc.command)
+			t.Errorf("NewJob(%q) => command: %q, want %q", tc.input, got.Command, tc.command)
 		}
 	}
 }
@@ -72,7 +72,7 @@ func TestDueNow(t *testing.T) {
 		{"* * * 5 *", mustParseTime("2018-06-08T12:08:59Z"), false},
 	}
 	for _, tc := range cases {
-		got, err := DueNow(tc.input, tc.now)
+		got, err := DueNow(Job{tc.input, ""}, tc.now)
 		if err != nil {
 			t.Errorf("DueNow(%q) at %s errored: %v", tc.input, tc.now.Format(time.RFC3339), err)
 		}
@@ -80,7 +80,7 @@ func TestDueNow(t *testing.T) {
 			t.Errorf("DueNow(%q) at %s => %t, want %t", tc.input, tc.now.Format(time.RFC3339), got, tc.want)
 		}
 	}
-	_, err := DueNow("*bogus*", time.Now())
+	_, err := DueNow(Job{"*bogus*", ""}, time.Now())
 	if err == nil {
 		t.Errorf("DueNow(bogus data) did not error as expected")
 	}

@@ -9,19 +9,19 @@ import (
 	"github.com/gorhill/cronexpr"
 )
 
-// A CronSpec represents the data parsed from a crontab line.
-// `Cronexpr` is the cron expression string (e.g. `* * * * *`).
+// A Job represents the data parsed from a crontab line.
+// `Due` is the cron expression string (e.g. `* * * * *`).
 // `Command` is the remainder of the line, which cron would run as the scheduled command.
-type CronSpec struct {
-	Cronexpr string
-	Command  string
+type Job struct {
+	Due     string
+	Command string
 }
 
-// DueNow returns true if the cron expression `crontime` represents the same time as the time `now`, to the minute, and false otherwise. For example, DueNow always returns true for the cron expression `* * * *`, since that means 'run every minute'. The expression '5 * * * *' returns true if the current minute of `now` is 5. And so on.
-func DueNow(crontime string, now time.Time) (bool, error) {
-	expr, err := cronexpr.Parse(crontime)
+// DueNow returns true if `job` is due to run at the time specified by `now` , and false otherwise. For example, DueNow always returns true for jobs due at `* * * *`, since that means 'run every minute'. A job due at '5 * * * *' is DueNow if the current minute of `now` is 5. And so on.
+func DueNow(job Job, now time.Time) (bool, error) {
+	expr, err := cronexpr.Parse(job.Due)
 	if err != nil {
-		return false, fmt.Errorf("failed to parse cron expression %q: %v", crontime, err)
+		return false, fmt.Errorf("failed to parse cron expression %q: %v", job.Due, err)
 	}
 	thisMinute := now.Truncate(time.Minute)
 
@@ -32,13 +32,13 @@ func DueNow(crontime string, now time.Time) (bool, error) {
 	return thisMinute == nextRunMinute, nil
 }
 
-// SplitCrontab parses a crontab line (like `* * * * * /usr/bin/foo`) and returns a CronSpec with the `Cronexpr` and `Command` fields set to the parsed cron expression and the command, respectively.
-func SplitCrontab(crontab string) (CronSpec, error) {
+// NewJob parses a crontab line (like `* * * * * /usr/bin/foo`) and returns a Job with the `Due` and `Command` fields set to the parsed cron expression and the command, respectively.
+func NewJob(crontab string) (Job, error) {
 	fields := strings.Fields(crontab)
 	if len(fields) < 6 {
-		return CronSpec{}, fmt.Errorf("less than six fields in crontab %q", crontab)
+		return Job{}, fmt.Errorf("less than six fields in crontab %q", crontab)
 	}
-	cronexpr := strings.Join(fields[:5], " ")
+	due := strings.Join(fields[:5], " ")
 	command := strings.Join(fields[5:], " ")
-	return CronSpec{cronexpr, command}, nil
+	return Job{due, command}, nil
 }
