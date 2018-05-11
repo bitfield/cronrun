@@ -17,8 +17,8 @@ type CronSpec struct {
 	Command  string
 }
 
-// Runnable returns true if the cron expression `crontime` represents the same time as the time `now`, to the minute, and false otherwise. For example, Runnable always returns true for the cron expression `* * * *`, since that means 'run every minute'. The expression '5 * * * *' returns true if the current minute of `now` is 5. And so on.
-func Runnable(crontime string, now time.Time) (bool, error) {
+// DueNow returns true if the cron expression `crontime` represents the same time as the time `now`, to the minute, and false otherwise. For example, DueNow always returns true for the cron expression `* * * *`, since that means 'run every minute'. The expression '5 * * * *' returns true if the current minute of `now` is 5. And so on.
+func DueNow(crontime string, now time.Time) (bool, error) {
 	expr, err := cronexpr.Parse(crontime)
 	if err != nil {
 		return false, fmt.Errorf("failed to parse cron expression %q: %v", crontime, err)

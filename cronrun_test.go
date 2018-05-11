@@ -49,7 +49,7 @@ func TestSplitCrontab(t *testing.T) {
 	}
 }
 
-func TestRunnable(t *testing.T) {
+func TestDueNow(t *testing.T) {
 	cases := []struct {
 		input string
 		now   time.Time
@@ -72,17 +72,17 @@ func TestRunnable(t *testing.T) {
 		{"* * * 5 *", mustParseTime("2018-06-08T12:08:59Z"), false},
 	}
 	for _, tc := range cases {
-		got, err := Runnable(tc.input, tc.now)
+		got, err := DueNow(tc.input, tc.now)
 		if err != nil {
-			t.Errorf("Runnable(%q) at %s errored: %v", tc.input, tc.now.Format(time.RFC3339), err)
+			t.Errorf("DueNow(%q) at %s errored: %v", tc.input, tc.now.Format(time.RFC3339), err)
 		}
 		if got != tc.want {
-			t.Errorf("Runnable(%q) at %s => %t, want %t", tc.input, tc.now.Format(time.RFC3339), got, tc.want)
+			t.Errorf("DueNow(%q) at %s => %t, want %t", tc.input, tc.now.Format(time.RFC3339), got, tc.want)
 		}
 	}
-	_, err := Runnable("*bogus*", time.Now())
+	_, err := DueNow("*bogus*", time.Now())
 	if err == nil {
-		t.Errorf("Runnable(bogus data) did not error as expected")
+		t.Errorf("DueNow(bogus data) did not error as expected")
 	}
 }
 
