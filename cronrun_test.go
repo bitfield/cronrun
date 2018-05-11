@@ -80,6 +80,10 @@ func TestRunnable(t *testing.T) {
 			t.Errorf("Runnable(%q) at %s => %t, want %t", tc.input, tc.now.Format(time.RFC3339), got, tc.want)
 		}
 	}
+	_, err := Runnable("*bogus*", time.Now())
+	if err == nil {
+		t.Errorf("Runnable(bogus data) did not error as expected")
+	}
 }
 
 func mustParseTime(ts string) time.Time {
