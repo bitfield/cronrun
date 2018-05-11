@@ -3,6 +3,7 @@ package cronrun
 
 import (
 	"fmt"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -17,8 +18,19 @@ type Job struct {
 	Command string
 }
 
-// DueNow returns true if `job` is due to run at the time specified by `now` , and false otherwise. For example, DueNow always returns true for jobs due at `* * * *`, since that means 'run every minute'. A job due at '5 * * * *' is DueNow if the current minute of `now` is 5. And so on.
-func DueNow(job Job, now time.Time) (bool, error) {
+// NewJob parses a crontab line (like `* * * * * /usr/bin/foo`) and returns a Job with the `Due` and `Command` fields set to the parsed cron expression and the command, respectively.
+func NewJob(crontab string) (Job, error) {
+	fields := strings.Fields(crontab)
+	if len(fields) < 6 {
+		return Job{}, fmt.Errorf("less than six fields in crontab %q", crontab)
+	}
+	due := strings.Join(fields[:5], " ")
+	command := strings.Join(fields[5:], " ")
+	return Job{due, command}, nil
+}
+
+// DueAt returns true if the job is due to run at time `t` , and false otherwise. For example, DueAt always returns true for jobs due at `* * * *`, since that means 'run every minute'. A job due at '5 * * * *' is DueAt if the current minute of `t` is 5. And so on.
+func (job *Job) DueAt(now time.Time) (bool, error) {
 	expr, err := cronexpr.Parse(job.Due)
 	if err != nil {
 		return false, fmt.Errorf("failed to parse cron expression %q: %v", job.Due, err)
@@ -32,13 +44,14 @@ func DueNow(job Job, now time.Time) (bool, error) {
 	return thisMinute == nextRunMinute, nil
 }
 
-// NewJob parses a crontab line (like `* * * * * /usr/bin/foo`) and returns a Job with the `Due` and `Command` fields set to the parsed cron expression and the command, respectively.
-func NewJob(crontab string) (Job, error) {
-	fields := strings.Fields(crontab)
-	if len(fields) < 6 {
-		return Job{}, fmt.Errorf("less than six fields in crontab %q", crontab)
+// Run runs the command line specified by `job.Command`. If the command succeeds (non-zero exit status), an empty byte slice and a nil error are returned. If the command fails (non-zero exit status), the combined output of the command is returned, with a non-nil error.
+func (job *Job) Run() ([]byte, error) {
+	args := strings.Fields(job.Command)
+	cmd := exec.Command(args[0], args[1:]...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(string(output))
+		return output, fmt.Errorf("failed to run command %q: %v", job.Command, err)
 	}
-	due := strings.Join(fields[:5], " ")
-	command := strings.Join(fields[5:], " ")
-	return Job{due, command}, nil
+	return []byte{}, nil
 }

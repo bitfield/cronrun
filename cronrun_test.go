@@ -49,7 +49,7 @@ func TestNewJob(t *testing.T) {
 	}
 }
 
-func TestDueNow(t *testing.T) {
+func TestDueAt(t *testing.T) {
 	cases := []struct {
 		input string
 		now   time.Time
@@ -72,17 +72,47 @@ func TestDueNow(t *testing.T) {
 		{"* * * 5 *", mustParseTime("2018-06-08T12:08:59Z"), false},
 	}
 	for _, tc := range cases {
-		got, err := DueNow(Job{tc.input, ""}, tc.now)
+		j := &Job{tc.input, ""}
+		got, err := j.DueAt(tc.now)
 		if err != nil {
-			t.Errorf("DueNow(%q) at %s errored: %v", tc.input, tc.now.Format(time.RFC3339), err)
+			t.Errorf("DueAt(%q) at %s errored: %v", tc.input, tc.now.Format(time.RFC3339), err)
 		}
 		if got != tc.want {
-			t.Errorf("DueNow(%q) at %s => %t, want %t", tc.input, tc.now.Format(time.RFC3339), got, tc.want)
+			t.Errorf("DueAt(%q) at %s => %t, want %t", tc.input, tc.now.Format(time.RFC3339), got, tc.want)
 		}
 	}
-	_, err := DueNow(Job{"*bogus*", ""}, time.Now())
+	j := &Job{"*bogus*", ""}
+	_, err := j.DueAt(time.Now())
 	if err == nil {
-		t.Errorf("DueNow(bogus data) did not error as expected")
+		t.Errorf("DueAt(bogus data) did not error as expected")
+	}
+}
+
+func TestRun(t *testing.T) {
+	cases := []struct {
+		cmd            string
+		errExpected    bool
+		outputExpected bool
+	}{
+		{"/bin/bash --version", false, false},
+		{"/bin/bash --bogus", true, true},
+		{"/bin/bogus --bash", true, false},
+	}
+	for _, tc := range cases {
+		j := &Job{"", tc.cmd}
+		output, err := j.Run()
+		if err == nil && tc.errExpected {
+			t.Errorf("Run(%s) did not error as expected", tc.cmd)
+		}
+		if err != nil && !tc.errExpected {
+			t.Errorf("Run(%s) errored unexpectedly: %v", tc.cmd, err)
+		}
+		if !tc.outputExpected && len(output) != 0 {
+			t.Errorf("Run(%s) wanted no output, got %q", tc.cmd, output)
+		}
+		if tc.outputExpected && len(output) == 0 {
+			t.Errorf("Run(%s) wanted output, got none", tc.cmd)
+		}
 	}
 }
 
