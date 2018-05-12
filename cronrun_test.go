@@ -94,9 +94,9 @@ func TestRun(t *testing.T) {
 		errExpected    bool
 		outputExpected bool
 	}{
-		{"/bin/bash --version", false, false},
-		{"/bin/bash --bogus", true, true},
-		{"/bin/bogus --bash", true, false},
+		{"/bin/echo foo", false, false},
+		{"/bin/ls --bogus", true, true},
+		{"/bin/bogus --bash", true, true},
 	}
 	for _, tc := range cases {
 		j := &Job{"", tc.cmd}

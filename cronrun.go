@@ -30,12 +30,12 @@ func NewJob(crontab string) (Job, error) {
 }
 
 // DueAt returns true if the job is due to run at time `t` , and false otherwise. For example, DueAt always returns true for jobs due at `* * * *`, since that means 'run every minute'. A job due at '5 * * * *' is DueAt if the current minute of `t` is 5. And so on.
-func (job *Job) DueAt(now time.Time) (bool, error) {
+func (job *Job) DueAt(t time.Time) (bool, error) {
 	expr, err := cronexpr.Parse(job.Due)
 	if err != nil {
 		return false, fmt.Errorf("failed to parse cron expression %q: %v", job.Due, err)
 	}
-	thisMinute := now.Truncate(time.Minute)
+	thisMinute := t.Truncate(time.Minute)
 
 	// If the job is due to run now, expr.Next(now) will return the *next* time it's due.
 	// So we call expr.Next with the time one second before the start of the current minute.
@@ -44,14 +44,12 @@ func (job *Job) DueAt(now time.Time) (bool, error) {
 	return thisMinute == nextRunMinute, nil
 }
 
-// Run runs the command line specified by `job.Command`. If the command succeeds (non-zero exit status), an empty byte slice and a nil error are returned. If the command fails (non-zero exit status), the combined output of the command is returned, with a non-nil error.
-func (job *Job) Run() ([]byte, error) {
-	args := strings.Fields(job.Command)
-	cmd := exec.Command(args[0], args[1:]...)
+// Run runs the command line specified by `job.Command`, by passing it as an argument to "/bin/sh -c". If the command succeeds (non-zero exit status), an empty byte slice and a nil error are returned. If the command fails (non-zero exit status), the combined output of the command is returned, with a non-nil error.
+func (job *Job) Run() (string, error) {
+	cmd := exec.Command("/bin/sh", "-c", job.Command)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println(string(output))
-		return output, fmt.Errorf("failed to run command %q: %v", job.Command, err)
+		return string(output), fmt.Errorf("failed to run command %q: %v", job.Command, err)
 	}
-	return []byte{}, nil
+	return "", nil
 }
