@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -26,23 +25,21 @@ func main() {
 		fmt.Println(usage)
 		os.Exit(1)
 	}
-	spec, err := ioutil.ReadFile(os.Args[1])
+	jobs, err := cronrun.JobsFromFile(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
-	job, err := cronrun.NewJob(string(spec))
-	if err != nil {
-		log.Fatal(err)
-	}
-	due, err := job.DueAt(time.Now())
-	if err != nil {
-		log.Fatal(err)
-	}
-	if !due {
-		return
-	}
-	output, err := job.Run()
-	if err != nil {
-		log.Println(err, output)
+	for _, j := range jobs {
+		due, err := j.DueAt(time.Now())
+		if err != nil {
+			log.Fatal(err)
+		}
+		if !due {
+			return
+		}
+		output, err := j.Run()
+		if err != nil {
+			log.Println(err, output)
+		}
 	}
 }

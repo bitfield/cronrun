@@ -2,6 +2,7 @@ package cronrun
 
 import (
 	"log"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -45,6 +46,36 @@ func TestNewJob(t *testing.T) {
 		}
 		if got.Command != tc.command {
 			t.Errorf("NewJob(%q) => command: %q, want %q", tc.input, got.Command, tc.command)
+		}
+	}
+}
+
+func TestJobsFromFile(t *testing.T) {
+	cases := []struct {
+		filename string
+		want     []Job
+	}{
+		{
+			filepath.Join("testdata", "jobs1.cron"),
+			[]Job{
+				Job{"* * * * *", "foo"},
+				Job{"*/10 * * * *", "bar"},
+				Job{"15 23 * * *", "/usr/local/bin/backup"},
+			},
+		},
+	}
+	for _, tc := range cases {
+		got, err := JobsFromFile(tc.filename)
+		if err != nil {
+			t.Errorf("JobsFromFile(%q) errored: %v", tc.filename, err)
+		}
+		if len(got) != len(tc.want) {
+			t.Errorf("JobsFromFile(%q) => %d jobs, want %d", tc.filename, len(got), len(tc.want))
+		}
+		for i, j := range got {
+			if j != tc.want[i] {
+				t.Errorf("JobsFromFile(%q)[%d] => %v, want %v", tc.filename, i, j, tc.want[i])
+			}
 		}
 	}
 }

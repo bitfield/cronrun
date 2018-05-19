@@ -2,7 +2,9 @@
 package cronrun
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -27,6 +29,27 @@ func NewJob(crontab string) (Job, error) {
 	due := strings.Join(fields[:5], " ")
 	command := strings.Join(fields[5:], " ")
 	return Job{due, command}, nil
+}
+
+// JobsFromFile reads a multi-line crontab file and returns the corresponding slice of Jobs, or an error.
+func JobsFromFile(filename string) (jobs []Job, err error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = f.Close() // ignoring error
+	}()
+
+	s := bufio.NewScanner(f)
+	for s.Scan() {
+		j, err := NewJob(s.Text())
+		if err != nil {
+			return nil, err
+		}
+		jobs = append(jobs, j)
+	}
+	return jobs, nil
 }
 
 // DueAt returns true if the job is due to run at time `t` , and false otherwise. For example, DueAt always returns true for jobs due at `* * * *`, since that means 'run every minute'. A job due at '5 * * * *' is DueAt if the current minute of `t` is 5. And so on.
