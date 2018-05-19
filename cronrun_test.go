@@ -121,30 +121,46 @@ func TestDueAt(t *testing.T) {
 
 func TestRun(t *testing.T) {
 	cases := []struct {
-		cmd            string
-		errExpected    bool
-		outputExpected bool
+		cmd         string
+		errExpected bool
 	}{
-		{"/bin/echo foo", false, false},
-		{"/bin/ls --bogus", true, true},
-		{"/bin/bogus --bash", true, true},
+		{"/bin/echo foo", false},
+		{"/bin/ls --bogus", true},
+		{"/bin/bogus --bash", true},
 	}
 	for _, tc := range cases {
 		j := &Job{"", tc.cmd}
-		output, err := j.Run()
+		err := j.Run()
 		if err == nil && tc.errExpected {
 			t.Errorf("Run(%s) did not error as expected", tc.cmd)
 		}
 		if err != nil && !tc.errExpected {
 			t.Errorf("Run(%s) errored unexpectedly: %v", tc.cmd, err)
 		}
-		if !tc.outputExpected && len(output) != 0 {
-			t.Errorf("Run(%s) wanted no output, got %q", tc.cmd, output)
+	}
+}
+
+func TestRunJobIfDue(t *testing.T) {
+	cases := []struct {
+		job       Job
+		time      time.Time
+		shouldRun bool
+	}{
+		{Job{"* * * * *", "/bin/ls"}, mustParseTime("2006-01-02T15:04:05Z"), true},
+		{Job{"*/5 * * * *", "/bin/ls"}, mustParseTime("2006-01-02T15:05:05Z"), true},
+		{Job{"15 08 * * *", "/bin/ls"}, mustParseTime("2006-01-02T15:05:05Z"), false},
+	}
+
+	for _, tc := range cases {
+		didRun, err := RunJobIfDue(tc.job, tc.time)
+		if err != nil {
+			t.Errorf("RunJobIfDue(%v, %v) errored: %v", tc.job, tc.time, err)
 		}
-		if tc.outputExpected && len(output) == 0 {
-			t.Errorf("Run(%s) wanted output, got none", tc.cmd)
+		if didRun != tc.shouldRun {
+			t.Errorf("RunJobIfDue(%v, %v) => %t, want %t", tc.job, tc.time, didRun, tc.shouldRun)
 		}
 	}
+
 }
 
 func mustParseTime(ts string) time.Time {

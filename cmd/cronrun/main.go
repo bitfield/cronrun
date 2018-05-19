@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/bitfield/cronrun"
@@ -29,17 +30,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	var wg sync.WaitGroup
+	wg.Add(len(jobs))
+	refTime := time.Now()
 	for _, j := range jobs {
-		due, err := j.DueAt(time.Now())
-		if err != nil {
-			log.Fatal(err)
-		}
-		if !due {
-			return
-		}
-		output, err := j.Run()
-		if err != nil {
-			log.Println(err, output)
-		}
+		go func(j cronrun.Job) {
+			_, err := cronrun.RunJobIfDue(j, refTime)
+			if err != nil {
+				log.Print(err)
+			}
+			wg.Done()
+		}(j)
 	}
+	wg.Wait()
 }

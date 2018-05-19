@@ -67,12 +67,24 @@ func (job *Job) DueAt(t time.Time) (bool, error) {
 	return thisMinute == nextRunMinute, nil
 }
 
-// Run runs the command line specified by `job.Command`, by passing it as an argument to "/bin/sh -c". If the command succeeds (non-zero exit status), an empty byte slice and a nil error are returned. If the command fails (non-zero exit status), the combined output of the command is returned, with a non-nil error.
-func (job *Job) Run() (string, error) {
+// Run runs the command line specified by `job.Command`, by passing it as an argument to "/bin/sh -c". If the command succeeds (non-zero exit status), an empty byte slice and a nil error are returned. If the command fails (non-zero exit status), an error containing the combined output of the command is returned.
+func (job *Job) Run() error {
 	cmd := exec.Command("/bin/sh", "-c", job.Command)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return string(output), fmt.Errorf("failed to run command %q: %v", job.Command, err)
+		return fmt.Errorf("command %q failed: %v: output: %s", job.Command, err, output)
 	}
-	return "", nil
+	return nil
+}
+
+// RunJobIfDue runs the specified job if it is due at the specified time, and returns true if it was due to run, or false otherwise, and an error if the job failed to either parse or run successfully.
+func RunJobIfDue(j Job, t time.Time) (bool, error) {
+	due, err := j.DueAt(t)
+	if err != nil {
+		return false, err
+	}
+	if !due {
+		return false, nil
+	}
+	return true, j.Run()
 }
