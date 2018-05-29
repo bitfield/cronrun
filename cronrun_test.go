@@ -170,3 +170,29 @@ func mustParseTime(ts string) time.Time {
 	}
 	return t
 }
+
+func BenchmarkJobsFromFile(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := JobsFromFile("testdata/jobs1.cron")
+		if err != nil {
+			b.Error(err)
+		}
+	}
+}
+
+func BenchmarkDueAt(b *testing.B) {
+	t := time.Now()
+	jobs, err := JobsFromFile("testdata/jobs1.cron")
+	if err != nil {
+		b.Error(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, j := range jobs {
+			_, err := j.DueAt(t)
+			if err != nil {
+				b.Error(err)
+			}
+		}
+	}
+}
