@@ -18,6 +18,7 @@ cronrun is designed to be called from cron every minute. If you need to run cron
 
 Example file format:
 
+# Any line starting with a # character is ignored
 */5 * * * * /usr/local/bin/backup
 00 01 * * * /usr/bin/security_upgrades
 
