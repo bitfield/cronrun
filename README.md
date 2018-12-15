@@ -1,4 +1,4 @@
-
+declLinks: false
 
 # cronrun
 `import "github.com/bitfield/cronrun"`
@@ -39,7 +39,7 @@ Example file format:
 	*/5 * * * * /usr/local/bin/backup
 	00 01 * * * /usr/bin/security_upgrades
 	# Blank lines or lines containing only whitespace are ignored:
-
+	
 	* * * * * /bin/echo This will run every minute!
 
 Running `cronrun` on the example file will run `/usr/local/bin/backup` if the
@@ -67,13 +67,13 @@ Example cron job to run `cronrun` on a given file:
 
 
 #### <a name="pkg-files">Package files</a>
-[cronrun.go](/src/target/cronrun.go) [doc.go](/src/target/doc.go)
+[cronrun.go](cronrun.go) [doc.go](doc.go) 
 
 
 
 
 
-## <a name="RunJobIfDue">func</a> [RunJobIfDue](/src/target/cronrun.go?s=3144:3194#L99)
+## <a name="RunJobIfDue">func</a> [RunJobIfDue](cronrun.go?s=3144:3194#L99)
 ``` go
 func RunJobIfDue(j Job, t time.Time) (bool, error)
 ```
@@ -85,7 +85,7 @@ successfully.
 
 
 
-## <a name="Job">type</a> [Job](/src/target/cronrun.go?s=317:368#L17)
+## <a name="Job">type</a> [Job](cronrun.go?s=317:368#L17)
 ``` go
 type Job struct {
     Due     string
@@ -103,7 +103,7 @@ which will be run as the scheduled command.
 
 
 
-### <a name="JobsFromFile">func</a> [JobsFromFile](/src/target/cronrun.go?s=1037:1095#L38)
+### <a name="JobsFromFile">func</a> [JobsFromFile](cronrun.go?s=1037:1095#L38)
 ``` go
 func JobsFromFile(filename string) (jobs []Job, err error)
 ```
@@ -112,7 +112,7 @@ lines or lines containing only whitespace, and returns the corresponding
 slice of Jobs, or an error.
 
 
-### <a name="NewJob">func</a> [NewJob](/src/target/cronrun.go?s=562:602#L25)
+### <a name="NewJob">func</a> [NewJob](cronrun.go?s=562:602#L25)
 ``` go
 func NewJob(crontab string) (Job, error)
 ```
@@ -124,7 +124,7 @@ and the command, respectively.
 
 
 
-### <a name="Job.DueAt">func</a> (\*Job) [DueAt](/src/target/cronrun.go?s=1756:1804#L66)
+### <a name="Job.DueAt">func</a> (\*Job) [DueAt](cronrun.go?s=1756:1804#L66)
 ``` go
 func (job *Job) DueAt(t time.Time) (bool, error)
 ```
@@ -136,7 +136,7 @@ if the current minute of `t` is 5, and so on.
 
 
 
-### <a name="Job.Run">func</a> (\*Job) [Run](/src/target/cronrun.go?s=2672:2699#L86)
+### <a name="Job.Run">func</a> (\*Job) [Run](cronrun.go?s=2672:2699#L86)
 ``` go
 func (job *Job) Run() error
 ```
