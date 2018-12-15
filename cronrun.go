@@ -32,8 +32,9 @@ func NewJob(crontab string) (Job, error) {
 	return Job{due, command}, nil
 }
 
-// JobsFromFile reads a multi-line crontab file, ignoring comments, and returns
-// the corresponding slice of Jobs, or an error.
+// JobsFromFile reads a multi-line crontab file, ignoring comments and blank
+// lines or lines containing only whitespace, and returns the corresponding
+// slice of Jobs, or an error.
 func JobsFromFile(filename string) (jobs []Job, err error) {
 	f, err := os.Open(filename)
 	if err != nil {

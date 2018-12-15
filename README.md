@@ -35,8 +35,12 @@ you.
 Example file format:
 
 
-	# Any line starting with a # character is ignored */5 * * * *
-	/usr/local/bin/backup 00 01 * * * /usr/bin/security_upgrades
+	# Any line starting with a # character is ignored
+	*/5 * * * * /usr/local/bin/backup
+	00 01 * * * /usr/bin/security_upgrades
+	# Blank lines or lines containing only whitespace are ignored:
+
+	* * * * * /bin/echo This will run every minute!
 
 Running `cronrun` on the example file will run `/usr/local/bin/backup` if the
 current minute is divisible by 5, and will run `/usr/bin/security_upgrades` if
@@ -69,7 +73,7 @@ Example cron job to run `cronrun` on a given file:
 
 
 
-## <a name="RunJobIfDue">func</a> [RunJobIfDue](/src/target/cronrun.go?s=3021:3071#L94)
+## <a name="RunJobIfDue">func</a> [RunJobIfDue](/src/target/cronrun.go?s=3144:3194#L99)
 ``` go
 func RunJobIfDue(j Job, t time.Time) (bool, error)
 ```
@@ -99,12 +103,13 @@ which will be run as the scheduled command.
 
 
 
-### <a name="JobsFromFile">func</a> [JobsFromFile](/src/target/cronrun.go?s=982:1040#L37)
+### <a name="JobsFromFile">func</a> [JobsFromFile](/src/target/cronrun.go?s=1037:1095#L38)
 ``` go
 func JobsFromFile(filename string) (jobs []Job, err error)
 ```
-JobsFromFile reads a multi-line crontab file, ignoring comments, and returns
-the corresponding slice of Jobs, or an error.
+JobsFromFile reads a multi-line crontab file, ignoring comments and blank
+lines or lines containing only whitespace, and returns the corresponding
+slice of Jobs, or an error.
 
 
 ### <a name="NewJob">func</a> [NewJob](/src/target/cronrun.go?s=562:602#L25)
@@ -119,7 +124,7 @@ and the command, respectively.
 
 
 
-### <a name="Job.DueAt">func</a> (\*Job) [DueAt](/src/target/cronrun.go?s=1633:1681#L61)
+### <a name="Job.DueAt">func</a> (\*Job) [DueAt](/src/target/cronrun.go?s=1756:1804#L66)
 ``` go
 func (job *Job) DueAt(t time.Time) (bool, error)
 ```
@@ -131,7 +136,7 @@ if the current minute of `t` is 5, and so on.
 
 
 
-### <a name="Job.Run">func</a> (\*Job) [Run](/src/target/cronrun.go?s=2549:2576#L81)
+### <a name="Job.Run">func</a> (\*Job) [Run](/src/target/cronrun.go?s=2672:2699#L86)
 ``` go
 func (job *Job) Run() error
 ```

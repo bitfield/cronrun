@@ -25,8 +25,12 @@
 //
 // Example file format:
 //
-//     # Any line starting with a # character is ignored */5 * * * *
-//     /usr/local/bin/backup 00 01 * * * /usr/bin/security_upgrades
+// 	# Any line starting with a # character is ignored
+//	*/5 * * * * /usr/local/bin/backup
+//	00 01 * * * /usr/bin/security_upgrades
+// 	# Blank lines or lines containing only whitespace are ignored:
+//
+//	* * * * * /bin/echo This will run every minute!
 //
 // Running `cronrun` on the example file will run `/usr/local/bin/backup` if the
 // current minute is divisible by 5, and will run `/usr/bin/security_upgrades` if
