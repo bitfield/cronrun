@@ -73,12 +73,12 @@ Example cron job to run `cronrun` on a given file:
 
 
 
-## <a name="RunJobIfDue">func</a> [RunJobIfDue](/cronrun.go?s=3139:3189#L99)
+## <a name="RunJobIfDue">func</a> [RunJobIfDue](/cronrun.go?s=3144:3194#L99)
 ``` go
 func RunJobIfDue(j Job, t time.Time) (bool, error)
 ```
 RunJobIfDue runs the specified job if it is due at the specified time (as
-determined by DueAt), and returns true if it was in fact run, or false
+determined by `DueAt`), and returns true if it was in fact run, or false
 otherwise, and an error if the job failed to either parse or run
 successfully.
 
@@ -124,24 +124,24 @@ and the command, respectively.
 
 
 
-### <a name="Job.DueAt">func</a> (\*Job) [DueAt](/cronrun.go?s=1751:1799#L66)
+### <a name="Job.DueAt">func</a> (\*Job) [DueAt](/cronrun.go?s=1749:1797#L66)
 ``` go
 func (job *Job) DueAt(t time.Time) (bool, error)
 ```
 DueAt returns true if the job would be due to run at the specified time, and
 false otherwise. For example, DueAt returns true for jobs due at `* * * * *`,
-since that means 'run every minute'. A job due at '5 * * * *' is DueAt if the
+since that means 'run every minute'. A job due at `5 * * * *` is due if the
 current minute of `t` is 5, and so on.
 
 
 
 
-### <a name="Job.Run">func</a> (\*Job) [Run](/cronrun.go?s=2667:2694#L86)
+### <a name="Job.Run">func</a> (\*Job) [Run](/cronrun.go?s=2670:2697#L86)
 ``` go
 func (job *Job) Run() error
 ```
 Run runs the command line specified by `job.Command`, by passing it as an
-argument to "/bin/sh -c". If the command succeeds (returns zero exit status),
+argument to `/bin/sh -c`. If the command succeeds (returns zero exit status),
 a nil error is returned. If the command fails (non-zero exit status), a
 non-nil error containing the combined output of the command as a string is
 returned.

@@ -61,7 +61,7 @@ func JobsFromFile(filename string) (jobs []Job, err error) {
 
 // DueAt returns true if the job would be due to run at the specified time, and
 // false otherwise. For example, DueAt returns true for jobs due at `* * * * *`,
-// since that means 'run every minute'. A job due at '5 * * * *' is DueAt if the
+// since that means 'run every minute'. A job due at `5 * * * *` is due if the
 // current minute of `t` is 5, and so on.
 func (job *Job) DueAt(t time.Time) (bool, error) {
 	expr, err := cronexpr.Parse(job.Due)
@@ -70,8 +70,8 @@ func (job *Job) DueAt(t time.Time) (bool, error) {
 	}
 	thisMinute := t.Truncate(time.Minute)
 
-	// If the job is due to run now, expr.Next(now) will return the *next*
-	// time it's due. So we call expr.Next with the time one second before
+	// If the job is due to run now, `expr.Next(now)`` will return the *next*
+	// time it's due. So we call `expr.Next` with the time one second before
 	// the start of the current minute. If the result is the current minute,
 	// then the job is due to run now.
 	nextRunMinute := expr.Next(thisMinute.Add(-1 * time.Second))
@@ -79,7 +79,7 @@ func (job *Job) DueAt(t time.Time) (bool, error) {
 }
 
 // Run runs the command line specified by `job.Command`, by passing it as an
-// argument to "/bin/sh -c". If the command succeeds (returns zero exit status),
+// argument to `/bin/sh -c`. If the command succeeds (returns zero exit status),
 // a nil error is returned. If the command fails (non-zero exit status), a
 // non-nil error containing the combined output of the command as a string is
 // returned.
@@ -93,7 +93,7 @@ func (job *Job) Run() error {
 }
 
 // RunJobIfDue runs the specified job if it is due at the specified time (as
-// determined by DueAt), and returns true if it was in fact run, or false
+// determined by `DueAt`), and returns true if it was in fact run, or false
 // otherwise, and an error if the job failed to either parse or run
 // successfully.
 func RunJobIfDue(j Job, t time.Time) (bool, error) {
