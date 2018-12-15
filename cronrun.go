@@ -60,9 +60,9 @@ func JobsFromFile(filename string) (jobs []Job, err error) {
 }
 
 // DueAt returns true if the job would be due to run at the specified time, and
-// false otherwise. For example, DueAt always returns true for jobs due at `* *
-// * *`, since that means 'run every minute'. A job due at '5 * * * *' is DueAt
-// if the current minute of `t` is 5, and so on.
+// false otherwise. For example, DueAt returns true for jobs due at `* * * * *`,
+// since that means 'run every minute'. A job due at '5 * * * *' is DueAt if the
+// current minute of `t` is 5, and so on.
 func (job *Job) DueAt(t time.Time) (bool, error) {
 	expr, err := cronexpr.Parse(job.Due)
 	if err != nil {
