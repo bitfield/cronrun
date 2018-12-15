@@ -42,7 +42,11 @@ func JobsFromFile(filename string) (jobs []Job, err error) {
 	defer f.Close()
 	s := bufio.NewScanner(f)
 	for s.Scan() {
-		if strings.HasPrefix(s.Text(), "#") {
+		line := strings.TrimSpace(s.Text())
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		if line == "" {
 			continue
 		}
 		j, err := NewJob(s.Text())

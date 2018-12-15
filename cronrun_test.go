@@ -63,6 +63,14 @@ func TestJobsFromFile(t *testing.T) {
 				Job{"15 23 * * *", "/usr/local/bin/backup"},
 			},
 		},
+		{
+			filepath.Join("testdata", "jobs2.cron"),
+			[]Job{
+				Job{"* * * * *", "/bin/sleep 10"},
+				Job{"* * * * *", "/bin/bogus"},
+				Job{"* * * * *", "/bin/lastjob"},
+			},
+		},
 	}
 	for _, tc := range cases {
 		got, err := JobsFromFile(tc.filename)

@@ -1,2 +1,7 @@
 * * * * * /bin/sleep 10
+# Blank line follows:
+
 * * * * * /bin/bogus
+# Line with only whitespace follows:
+    	 
+* * * * * /bin/lastjob
